@@ -12,13 +12,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    bought = db.Column(db.Boolean, nullable=False)
-
-    def __init__(self, name, price, category, bought=False):
-        self.name = name
-        self.price = float(price)
-        self.category = category
-        self.bought = bought
+    bought = db.Column(db.Boolean, default=False, nullable=False)
 
     def to_dict(self):
         return {
@@ -29,45 +23,35 @@ class Product(db.Model):
             "bought": self.bought
         }
 
-
 with app.app_context():
-    try:
-        db.create_all()
-    except Exception as e:
-        print(f"Error creating tables: {e}")
+    db.create_all()
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
-
 @app.route("/api/products", methods=["GET", "POST"])
 def handle_products():
     if request.method == "POST":
         data = request.get_json()
-        attributes_string = data.get("productAtributes", "")
-        attributes_arr = attributes_string.split(",")
+        name = data.get("name")
+        price = data.get("price")
+        category = data.get("category")
 
-        if len(attributes_arr) < 3:
-            return jsonify({"error": "Invalid product data"}), 400
+        if not name or not price or not category:
+            return jsonify({"error": "Missing product data"}), 400
 
         new_product = Product(
-            name=attributes_arr[0].strip(),
-            price=attributes_arr[1].strip(),
-            category=attributes_arr[2].strip(),
-            bought=False
+            name=name.strip(),
+            price=float(price),
+            category=category.strip()
         )
         db.session.add(new_product)
         db.session.commit()
         return jsonify(new_product.to_dict()), 201
 
-    
-    try:
-        products = Product.query.all()
-        return jsonify([product.to_dict() for product in products]), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+    products = Product.query.all()
+    return jsonify([product.to_dict() for product in products]), 200
 
 if __name__ == "__main__":
     app.run(debug=True)

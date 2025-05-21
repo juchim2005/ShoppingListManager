@@ -9,7 +9,9 @@
     <div class="container">
         <h1>Lista Zakupów</h1>
         <form id="productForm">
-            <input type="text" id="productInput" placeholder="Dodaj produkt" required>
+            <input type="text" id="nameInput" placeholder="Nazwa" required>
+            <input type="number" step="0.01" id="priceInput" placeholder="Cena" required>
+            <input type="text" id="categoryInput" placeholder="Kategoria" required>
             <button type="submit">Dodaj</button>
         </form>
         <ul id="productsList"></ul>
@@ -17,4 +19,3 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
-
