@@ -8,12 +8,13 @@
 <body>
     <div class="container">
         <h1>Lista Zakupów</h1>
-        <form id="itemForm">
-            <input type="text" id="itemInput" placeholder="Dodaj produkt" required>
+        <form id="productForm">
+            <input type="text" id="productInput" placeholder="Dodaj produkt" required>
             <button type="submit">Dodaj</button>
         </form>
-        <ul id="itemsList"></ul>
+        <ul id="productsList"></ul>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
 
