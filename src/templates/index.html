@@ -1,9 +1,19 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping List Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Lista Zakupów</h1>
+        <form id="itemForm">
+            <input type="text" id="itemInput" placeholder="Dodaj produkt" required>
+            <button type="submit">Dodaj</button>
+        </form>
+        <ul id="itemsList"></ul>
+    </div>
+</body>
+</html>
 
-{%block head%}
-
-{%endblock%}
-
-{%block body%}
-<h1>Template</h1>
-{%endblock%}
