@@ -53,5 +53,15 @@ def handle_products():
     products = Product.query.all()
     return jsonify([product.to_dict() for product in products]), 200
 
+@app.route("/api/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    product = Product.query.get(product_id)
+    if product is None:
+        return jsonify({"error": "Product not found"}), 404
+
+    db.session.delete(product)
+    db.session.commit()
+    return 'Product successfully deleted', 204
+
 if __name__ == "__main__":
     app.run()

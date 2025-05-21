@@ -39,5 +39,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const li = document.createElement("li");
         li.textContent = `${product.name} - ${product.price} zł [${product.category}]`;
         productsList.appendChild(li);
+
+        //po dodaniu produktu, dodanie przycisku do usuwania 
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Usuń";
+        deleteButton.style.marginLeft = "10px";
+
+        deleteButton.addEventListener("click", () => {
+            fetch(`/api/products/${product.id}`, {
+                method: "DELETE"
+        }).then(res => {
+            if(res.ok) {
+                li.remove();
+                
+            }else{
+                console.error("Błąd podczas usuwania produktu");
+            }
+        })
+        .catch(err => console.error("Błąd:", err)); 
+        });
+
+        li.appendChild(deleteButton);
     }
 });
+
