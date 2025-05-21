@@ -54,4 +54,4 @@ def handle_products():
     return jsonify([product.to_dict() for product in products]), 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
