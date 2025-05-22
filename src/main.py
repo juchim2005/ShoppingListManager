@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'instance', 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -68,6 +72,21 @@ def delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
     return 'Product successfully deleted', 204
+
+@app.route("/api/products/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    data = request.get_json()
+    product = Product.query.get_or_404(product_id)
+
+    product.name = data.get("name", product.name)
+    product.price = data.get("price", product.price)
+    product.category = data.get("category", product.category)
+    product.quantity = data.get("quantity", product.quantity)
+    product.bought = data.get("bought", product.bought)
+
+    db.session.commit()
+
+    return jsonify({"message": "Product successfully updated"}), 200
 
 if __name__ == "__main__":
     app.run()

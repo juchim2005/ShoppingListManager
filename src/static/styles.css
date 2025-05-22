@@ -6,12 +6,12 @@ body {
 }
 
 .container {
-    max-width: 600px;
+    max-width: 700px;
     margin: auto;
     background: #ffffff;
     padding: 25px;
     border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
 }
 
 h1 {
@@ -21,26 +21,28 @@ h1 {
 }
 
 form {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 20px;
+    justify-content: center;
 }
 
 input, button {
-    padding: 12px;
+    padding: 10px 12px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 8px;
-    transition: border-color 0.2s;
+    transition: 0.2s ease-in-out;
 }
 
 input:focus {
     outline: none;
     border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
 }
 
-button {
+button[type="submit"] {
     background-color: #28a745;
     color: white;
     font-weight: bold;
@@ -48,7 +50,7 @@ button {
     border: none;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #218838;
 }
 
@@ -59,25 +61,64 @@ ul {
 
 li {
     background: #f8f9fa;
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
     border-radius: 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
 }
 
-li span {
-    flex-grow: 1;
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 15px;
 }
 
-li button {
-    background-color: #dc3545;
-    padding: 6px 12px;
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons button {
+    padding: 6px 10px;
     font-size: 14px;
     border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-li button:hover {
+button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+button.delete:hover {
     background-color: #c82333;
+}
+
+button.edit {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+button.edit:hover {
+    background-color: #e0a800;
+}
+
+button.save {
+    background-color: #007bff;
+    color: white;
+}
+
+button.cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+input[type="checkbox"] {
+    margin-right: 6px;
 }
