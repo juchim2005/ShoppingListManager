@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             saveButton.addEventListener("click", () => {
                 const updatedProduct = {
+                    id: product.id,
                     name: nameInput.value,
                     price: priceInput.value,
                     category: categoryInput.value,
