@@ -18,7 +18,7 @@ class CategoryEnum(Enum):
     OWOCE = 'Owoce'
     NABIAŁ = 'Nabiał'
     PIECZYWO = 'Pieczywo'
-    Napoje = "Napoje"
+    NAPOJE = "Napoje"
     INNE = 'Inne'
 
 class Product(db.Model):
