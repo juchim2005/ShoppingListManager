@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nameInput = document.getElementById("nameInput");
     const priceInput = document.getElementById("priceInput");
     const categoryInput = document.getElementById("categoryInput");
+    const quantityInput = document.getElementById("quantityInput");
     const productsList = document.getElementById("productsList");
 
     form.addEventListener("submit", (e) => {
@@ -11,7 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const newProduct = {
             name: nameInput.value,
             price: priceInput.value,
-            category: categoryInput.value
+            category: categoryInput.value,
+            quantity: quantityInput.value
         };
 
         fetch("/api/products", {
@@ -37,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendProduct(product) {
         const li = document.createElement("li");
-        li.textContent = `${product.name} - ${product.price} zł [${product.category}]`;
+        li.textContent = `${product.name} - ${product.price} zł [${product.category}] - ${product.quantity} sztuki - ${product.price * product.quantity} zł - ${product.bought ? "Kupiony" : "Nie kupiony"}`;
         productsList.appendChild(li);
 
         //po dodaniu produktu, dodanie przycisku do usuwania 

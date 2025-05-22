@@ -12,6 +12,7 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     bought = db.Column(db.Boolean, default=False, nullable=False)
 
     def to_dict(self):
@@ -20,6 +21,7 @@ class Product(db.Model):
             "name": self.name,
             "price": self.price,
             "category": self.category,
+            "quantity": self.quantity,
             "bought": self.bought
         }
 
@@ -37,6 +39,8 @@ def handle_products():
         name = data.get("name")
         price = data.get("price")
         category = data.get("category")
+        quantity = data.get("quantity")
+        bought = False
 
         if not name or not price or not category:
             return jsonify({"error": "Missing product data"}), 400
@@ -44,7 +48,9 @@ def handle_products():
         new_product = Product(
             name=name.strip(),
             price=float(price),
-            category=category.strip()
+            category=category.strip(),
+            quantity=int(quantity),
+            bought=bought
         )
         db.session.add(new_product)
         db.session.commit()

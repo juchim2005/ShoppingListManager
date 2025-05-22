@@ -7,12 +7,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Lista Zakupów</h1>
+        <h1>🛒 Lista Zakupów</h1>
         <form id="productForm">
-            <input type="text" id="nameInput" placeholder="Nazwa" required>
-            <input type="number" step="0.01" id="priceInput" placeholder="Cena" required>
+            <input type="text" id="nameInput" placeholder="Nazwa produktu" required>
+            <input type="number" step="0.01" id="priceInput" placeholder="Cena (zł)" required>
             <input type="text" id="categoryInput" placeholder="Kategoria" required>
-            <button type="submit">Dodaj</button>
+            <input type="number" step="1" id="quantityInput" placeholder="Ilość" required>
+            <button type="submit">➕ Dodaj produkt</button>
         </form>
         <ul id="productsList"></ul>
     </div>
