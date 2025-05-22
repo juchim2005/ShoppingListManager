@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendProduct(product) {
         const li = document.createElement("li");
-        li.textContent = `${product.name} - ${product.price} zł [${product.category}] - ${product.quantity} sztuki - ${product.price * product.quantity} zł - ${product.bought ? "Kupiony" : "Nie kupiony"}`;
+        li.textContent = `${product.name} - ${product.price} zł [${product.category}] - ${product.quantity} sztuki - ${(product.price * product.quantity).toFixed(2)} zł - ${product.bought ? "Kupiony" : "Nie kupiony"}`;
 
         //po dodaniu produktu, dodanie przycisku do usuwania 
         const deleteButton = document.createElement("button");
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             priceInput.value = product.price;
 
             const categoryInput = document.createElement("select");
-            ["Warzywa", "Owoce", "Nabiał", "Pieczywo", "Inne"].forEach(cat => {
+            ["Warzywa", "Owoce", "Nabiał", "Pieczywo", "Napoje", "Inne"].forEach(cat => {
                 const opt = document.createElement("option");
                 opt.value = cat;
                 opt.textContent = cat.charAt(0) + cat.slice(1).toLowerCase();
