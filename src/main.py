@@ -1,3 +1,5 @@
+from enum import Enum
+from sqlalchemy import Enum as SqlEnum
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -11,11 +13,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+class CategoryEnum(Enum):
+    WARZYWA = 'Warzywa'
+    OWOCE = 'Owoce'
+    NABIAŁ = 'Nabiał'
+    PIECZYWO = 'Pieczywo'
+    INNE = 'Inne'
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
-    category = db.Column(db.String(100), nullable=False)
+    category = db.Column(SqlEnum(CategoryEnum), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     bought = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -24,7 +33,7 @@ class Product(db.Model):
             "id": self.id,
             "name": self.name,
             "price": self.price,
-            "category": self.category,
+            "category": self.category.value,
             "quantity": self.quantity,
             "bought": self.bought
         }
@@ -42,7 +51,7 @@ def handle_products():
         data = request.get_json()
         name = data.get("name")
         price = data.get("price")
-        category = data.get("category")
+        category = CategoryEnum(data.get("category"))
         quantity = data.get("quantity")
         bought = False
 
@@ -52,7 +61,7 @@ def handle_products():
         new_product = Product(
             name=name.strip(),
             price=float(price),
-            category=category.strip(),
+            category=category,
             quantity=int(quantity),
             bought=bought
         )
@@ -80,7 +89,7 @@ def update_product(product_id):
 
     product.name = data.get("name", product.name)
     product.price = data.get("price", product.price)
-    product.category = data.get("category", product.category)
+    product.category = CategoryEnum(data.get("category"))
     product.quantity = data.get("quantity", product.quantity)
     product.bought = data.get("bought", product.bought)
 

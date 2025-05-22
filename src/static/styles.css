@@ -54,6 +54,28 @@ button[type="submit"]:hover {
     background-color: #218838;
 }
 
+select {
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    transition: 0.2s ease-in-out;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: #495057;
+}
+
+select option[value=""][disabled] {
+    color: #6c757d;
+}
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
 ul {
     list-style: none;
     padding: 0;

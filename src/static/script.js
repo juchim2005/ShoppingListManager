@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
             price: priceInput.value,
             category: categoryInput.value,
             quantity: quantityInput.value
-            
+
         };
 
         fetch("/api/products", {
@@ -24,12 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: JSON.stringify(newProduct)
         })
-        .then(res => res.json())
-        .then(data => {
-            appendProduct(data);
-            form.reset();
-        })
-        .catch(err => console.error("Błąd:", err));
+            .then(res => res.json())
+            .then(data => {
+                appendProduct(data);
+                form.reset();
+            })
+            .catch(err => console.error("Błąd:", err));
     });
 
     // Wczytaj istniejące produkty
@@ -50,15 +50,15 @@ document.addEventListener("DOMContentLoaded", () => {
         deleteButton.addEventListener("click", () => {
             fetch(`/api/products/${product.id}`, {
                 method: "DELETE"
-        }).then(res => {
-            if(res.ok) {
-                li.remove();
-                
-            }else{
-                console.error("Błąd podczas usuwania produktu");
-            }
-        })
-        .catch(err => console.error("Błąd:", err)); 
+            }).then(res => {
+                if (res.ok) {
+                    li.remove();
+
+                } else {
+                    console.error("Błąd podczas usuwania produktu");
+                }
+            })
+                .catch(err => console.error("Błąd:", err));
         });
 
         const editButton = document.createElement("button");
@@ -67,15 +67,22 @@ document.addEventListener("DOMContentLoaded", () => {
         editButton.addEventListener("click", () => {
             li.innerHTML = '';
 
-            const nameInput = document.createElement("input");nameInput.value = product.name;
+            const nameInput = document.createElement("input");
+            nameInput.value = product.name;
 
             const priceInput = document.createElement("input");
             priceInput.type = "number";
             priceInput.step = "0.01";
             priceInput.value = product.price;
 
-            const categoryInput = document.createElement("input");
-            categoryInput.value = product.category;
+            const categoryInput = document.createElement("select");
+            ["Warzywa", "Owoce", "Nabiał", "Pieczywo", "Inne"].forEach(cat => {
+                const opt = document.createElement("option");
+                opt.value = cat;
+                opt.textContent = cat.charAt(0) + cat.slice(1).toLowerCase();
+                if (cat === product.category.toUpperCase()) opt.selected = true;
+                categoryInput.appendChild(opt);
+            });
 
             const quantityInput = document.createElement("input");
             quantityInput.type = "number";
@@ -119,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cancelButton.addEventListener("click", () => {
                 li.remove();
                 appendProduct(product);
-            });     
+            });
         });
         li.appendChild(deleteButton);
         li.appendChild(editButton);
@@ -135,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify(product),
 
         });
-        
+
     }
 });
 

@@ -6,17 +6,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>🛒 Lista Zakupów</h1>
-        <form id="productForm">
-            <input type="text" id="nameInput" placeholder="Nazwa produktu" required>
-            <input type="number" step="0.01" id="priceInput" placeholder="Cena (zł)" required>
-            <input type="text" id="categoryInput" placeholder="Kategoria" required>
-            <input type="number" step="1" id="quantityInput" placeholder="Ilość" required>
-            <button type="submit">➕ Dodaj produkt</button>
-        </form>
-        <ul id="productsList"></ul>
-    </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+<div class="container">
+    <h1>🛒 Lista Zakupów</h1>
+    <form id="productForm">
+        <input type="text" id="nameInput" placeholder="Nazwa produktu" required>
+        <input type="number" step="0.01" id="priceInput" placeholder="Cena (zł)" required>
+        <select id="categoryInput" required>
+            <option value="" disabled selected>Wybierz kategorię</option>
+            <option value="Warzywa">Warzywa</option>
+            <option value="Owoce">Owoce</option>
+            <option value="Nabiał">Nabiał</option>
+            <option value="Pieczywo">Pieczywo</option>
+            <option value="Inne">Inne</option>
+        </select>
+        <input type="number" step="1" id="quantityInput" placeholder="Ilość" required>
+        <button type="submit">➕ Dodaj produkt</button>
+    </form>
+    <ul id="productsList"></ul>
+</div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
