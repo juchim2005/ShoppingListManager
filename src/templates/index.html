@@ -23,6 +23,31 @@
         <input type="number" step="1" id="quantityInput" placeholder="Ilość" required>
         <button type="submit">➕ Dodaj produkt</button>
     </form>
+
+    <h2>🔍 Filtruj produkty</h2>
+    <form id="filterForm">
+        <input type="number" step="0.01" id="minCost" placeholder="Min koszt">
+        <input type="number" step="0.01" id="maxCost" placeholder="Max koszt">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <select id="filterCategory" style="flex: 1;">
+                <option value="">Wszystkie kategorie</option>
+                <option value="Warzywa">Warzywa</option>
+                <option value="Owoce">Owoce</option>
+                <option value="Nabiał">Nabiał</option>
+                <option value="Pieczywo">Pieczywo</option>
+                <option value="Napoje">Napoje</option>
+                <option value="Inne">Inne</option>
+            </select>
+
+            <select id="filterBought" style="flex: 1;">
+                <option value="">Wszystko</option>
+                <option value="true">Kupione</option>
+                <option value="false">Nie kupione</option>
+            </select>
+
+            <button type="submit" style="flex: 0 0 auto;">Filtruj</button>
+        </div>
+    </form>
     <ul id="productsList"></ul>
 </div>
 <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -32,6 +32,30 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(err => console.error("Błąd:", err));
     });
 
+    const filterForm = document.getElementById("filterForm");
+    const minCost = document.getElementById("minCost");
+    const maxCost = document.getElementById("maxCost");
+    const filterCategory = document.getElementById("filterCategory");
+    const filterBought = document.getElementById("filterBought");
+
+    filterForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const query = new URLSearchParams();
+        if (minCost.value) query.append("min_cost", minCost.value);
+        if (maxCost.value) query.append("max_cost", maxCost.value);
+        if (filterCategory.value) query.append("category", filterCategory.value);
+        if (filterBought.value) query.append("bought", filterBought.value);
+
+        fetch(`/api/products?${query.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                productsList.innerHTML = "";
+                data.forEach(appendProduct);
+            })
+            .catch(err => console.error("Błąd filtrowania:", err));
+    });
+
     // Wczytaj istniejące produkty
     fetch("/api/products")
         .then(res => res.json())

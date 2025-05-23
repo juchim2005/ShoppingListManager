@@ -70,7 +70,32 @@ def handle_products():
         db.session.commit()
         return jsonify(new_product.to_dict()), 201
 
-    products = Product.query.all()
+    query = Product.query
+
+    category = request.args.get("category")
+    if category:
+        try:
+            query = query.filter(Product.category == CategoryEnum(category))
+        except ValueError:
+            return jsonify({"error": f"Invalid category: {category}"}), 400
+
+    bought = request.args.get("bought")
+    if bought is not None:
+        if bought.lower() == "true":
+            query = query.filter(Product.bought.is_(True))
+        elif bought.lower() == "false":
+            query = query.filter(Product.bought.is_(False))
+
+    min_cost = request.args.get("min_cost", type=float)
+    max_cost = request.args.get("max_cost", type=float)
+    cost_expr = Product.price * Product.quantity
+
+    if min_cost is not None:
+        query = query.filter(cost_expr >= min_cost)
+    if max_cost is not None:
+        query = query.filter(cost_expr <= max_cost)
+
+    products = query.all()
     return jsonify([product.to_dict() for product in products]), 200
 
 @app.route("/api/products/<int:product_id>", methods=["DELETE"])
