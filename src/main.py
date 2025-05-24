@@ -95,6 +95,24 @@ def handle_products():
     if max_cost is not None:
         query = query.filter(cost_expr <= max_cost)
 
+    sort_by = request.args.get("sort_by")
+    order = request.args.get("order", "asc")
+
+    if sort_by == "name":
+        sort_column = Product.name
+    elif sort_by == "total_cost":
+        sort_column = cost_expr
+    elif sort_by == "bought":
+        sort_column = Product.bought
+    else:
+        sort_column = None
+
+    if sort_column is not None:
+        if order == "desc":
+            query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(sort_column.asc())
+
     products = query.all()
     return jsonify([product.to_dict() for product in products]), 200
 

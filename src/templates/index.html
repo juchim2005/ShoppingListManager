@@ -28,8 +28,8 @@
     <form id="filterForm">
         <input type="number" step="0.01" id="minCost" placeholder="Min koszt">
         <input type="number" step="0.01" id="maxCost" placeholder="Max koszt">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <select id="filterCategory" style="flex: 1;">
+        <div>
+            <select id="filterCategory">
                 <option value="">Wszystkie kategorie</option>
                 <option value="Warzywa">Warzywa</option>
                 <option value="Owoce">Owoce</option>
@@ -39,14 +39,30 @@
                 <option value="Inne">Inne</option>
             </select>
 
-            <select id="filterBought" style="flex: 1;">
+            <select id="filterBought">
                 <option value="">Wszystko</option>
                 <option value="true">Kupione</option>
                 <option value="false">Nie kupione</option>
             </select>
 
-            <button type="submit" style="flex: 0 0 auto;">Filtruj</button>
+            <button type="submit">Filtruj</button>
         </div>
+    </form>
+    <h2>🔍 Sortuj produkty</h2>
+    <form id="sortForm">
+            <select id="sortBy">
+                <option value="">Sortuj wg</option>
+                <option value="name">Nazwa</option>
+                <option value="total_cost">Całkowity koszt</option>
+                <option value="bought">Status</option>
+            </select>
+
+            <select id="sortOrder">
+                <option value="asc">Rosnąco</option>
+                <option value="desc">Malejąco</option>
+            </select>
+
+            <button type="submit">Sortuj</button>
     </form>
     <ul id="productsList"></ul>
 </div>

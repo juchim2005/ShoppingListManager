@@ -56,6 +56,26 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(err => console.error("Błąd filtrowania:", err));
     });
 
+    const sortForm = document.getElementById("sortForm");
+    const sortBy = document.getElementById("sortBy");
+    const sortOrder = document.getElementById("sortOrder");
+
+    sortForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const query = new URLSearchParams();
+        if (sortBy.value) query.append("sort_by", sortBy.value);
+        if (sortOrder.value) query.append("order", sortOrder.value);
+
+        fetch(`/api/products?${query.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                productsList.innerHTML = "";
+                data.forEach(appendProduct);
+            })
+            .catch(err => console.error("Błąd sortowania:", err));
+    });
+
     // Wczytaj istniejące produkty
     fetch("/api/products")
         .then(res => res.json())
