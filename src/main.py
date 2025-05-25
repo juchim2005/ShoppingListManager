@@ -21,6 +21,18 @@ class CategoryEnum(Enum):
     NAPOJE = "Napoje"
     INNE = 'Inne'
 
+class ShoppingList(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    products = db.relationship('Product', back_populates='shopping_list', lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "products": [product.to_dict() for product in self.products]
+        }
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -28,6 +40,10 @@ class Product(db.Model):
     category = db.Column(SqlEnum(CategoryEnum), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     bought = db.Column(db.Boolean, default=False, nullable=False)
+    shopping_list_id = db.Column(db.Integer, db.ForeignKey('shopping_list.id'), nullable=False)
+    shopping_list = db.relationship('ShoppingList', back_populates='products')
+
+
 
     def to_dict(self):
         return {
@@ -46,7 +62,34 @@ with app.app_context():
 def home():
     return render_template("index.html")
 
-@app.route("/api/products", methods=["GET", "POST"])
+@app.route("/api/lists", methods=["GET", "POST"])
+def handle_lists():
+    if request.method == "POST":
+        data = request.get_json()
+        name = data.get("name")
+        if not name:
+            return jsonify({"error": "Missing list data"}),400
+        
+        new_list = ShoppingList(name=name)
+        db.session.add(new_list)
+        db.session.commit()
+        return jsonify(new_list.to_dict()), 201
+
+    lists = ShoppingList.query.all()
+    return jsonify([list.to_dict() for list in lists]), 200
+
+
+@app.route("/api/lists/<int:id>", methods=["GET"])
+def find_list(id):
+    list = ShoppingList.query.get_or_404(id)
+    return jsonify(list.to_dict()), 200
+
+@app.route("/api/lists/czemutoniedziala", methods=["GET"])
+def get_shopping_lists_names():
+    lists = ShoppingList.query.all()
+    return jsonify([{"id": list.id, "name": list.name} for list in lists]), 200
+
+@app.route("/api/products", methods=["GET","POST"])
 def handle_products():
     if request.method == "POST":
         data = request.get_json()
@@ -55,6 +98,7 @@ def handle_products():
         category = CategoryEnum(data.get("category"))
         quantity = data.get("quantity")
         bought = False
+        shopping_list_id = data.get("listId")
 
         if not name or not price or not category:
             return jsonify({"error": "Missing product data"}), 400
@@ -64,7 +108,8 @@ def handle_products():
             price=float(price),
             category=category,
             quantity=int(quantity),
-            bought=bought
+            bought=bought,
+            shopping_list_id=shopping_list_id   
         )
         db.session.add(new_product)
         db.session.commit()
@@ -112,8 +157,9 @@ def handle_products():
             query = query.order_by(sort_column.desc())
         else:
             query = query.order_by(sort_column.asc())
-
-    products = query.all()
+    
+    list_id = request.args.get("listId", type=int)
+    products = query.filter(Product.shopping_list_id == list_id).all()
     return jsonify([product.to_dict() for product in products]), 200
 
 @app.route("/api/products/<int:product_id>", methods=["DELETE"])

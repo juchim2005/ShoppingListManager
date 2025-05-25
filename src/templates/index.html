@@ -7,6 +7,36 @@
 </head>
 <body>
 <div class="container">
+    <h1>➕ Dodaj Listę Zakupów</h1>
+    <form id="listForm">
+        <input type="text" id ="listNameInput" placeholder="Nazwa listy zakupów" required>
+        <button type="submit">➕ Dodaj listę</button>
+    </form>
+    <label for="shoppingList">Wybierz listę zakupów:</label>
+    <select id="listSelect">
+
+    </select>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("/api/lists/czemutoniedziala")
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById("listSelect");
+                testoption = document.createElement("option");
+                testoption.value = "";
+                testoption.textContent = "Siedziałem nad tym 3 godziny";
+                select.appendChild(testoption);
+                data.forEach(list => {
+                    const option = document.createElement("option");
+                    option.value = list.id;
+                    option.textContent = list.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Błąd podczas pobierania list:", error));
+    });
+    </script>
     <h1>🛒 Lista Zakupów</h1>
     <form id="productForm">
         <input type="text" id="nameInput" placeholder="Nazwa produktu" required>

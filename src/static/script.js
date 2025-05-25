@@ -5,6 +5,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryInput = document.getElementById("categoryInput");
     const quantityInput = document.getElementById("quantityInput");
     const productsList = document.getElementById("productsList");
+    const listForm = document.getElementById("listForm");
+    const listNameInput = document.getElementById("listNameInput");
+    const listSelect = document.getElementById("listSelect");
+    let currentListId = null;
+
+    listForm.addEventListener("submit", (e) =>{
+        e.preventDefault();
+
+        const newList = {
+            name: listNameInput.value
+        }; 
+
+        fetch("/api/lists", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newList)
+        }).then(res => res.json())
+        .then(data => {
+            const option = document.createElement("option");
+            option.value = data.id;
+            option.textContent = data.name;
+            listSelect.appendChild(option);
+            currentListId = data.id;
+            data.products.forEach(appendProduct);
+        })
+    })
+
+    listSelect.addEventListener("change", (e) => {
+        e.preventDefault();
+        const id = listSelect.value;
+
+        fetch(`/api/lists/${id}`)
+            .then(res => res.json()
+            .then(data => {
+                productsList.innerHTML = "";
+                currentListId = data.id;
+                data.products.forEach(appendProduct);
+            })
+        );
+    })
 
     form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -13,8 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
             name: nameInput.value,
             price: priceInput.value,
             category: categoryInput.value,
-            quantity: quantityInput.value
-
+            quantity: quantityInput.value,
+            listId: currentListId
         };
 
         fetch("/api/products", {
@@ -46,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (maxCost.value) query.append("max_cost", maxCost.value);
         if (filterCategory.value) query.append("category", filterCategory.value);
         if (filterBought.value) query.append("bought", filterBought.value);
+        query.append("list_id", currentListId);
 
         fetch(`/api/products?${query.toString()}`)
             .then(res => res.json())
@@ -76,11 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(err => console.error("Błąd sortowania:", err));
     });
 
-    // Wczytaj istniejące produkty
-    fetch("/api/products")
-        .then(res => res.json())
-        .then(data => data.forEach(appendProduct))
-        .catch(err => console.error("Błąd:", err));
 
     function appendProduct(product) {
         const li = document.createElement("li");
@@ -158,7 +196,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     price: priceInput.value,
                     category: categoryInput.value,
                     quantity: quantityInput.value,
-                    bought: boughtInput.checked
+                    bought: boughtInput.checked,
+                    listId: currentListId
                 };
 
                 updateProduct(updatedProduct).then(() => {
