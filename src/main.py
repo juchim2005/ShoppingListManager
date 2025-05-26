@@ -43,10 +43,15 @@ class Product(db.Model):
     category = db.Column(SqlEnum(CategoryEnum), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     bought = db.Column(db.Boolean, default=False, nullable=False)
+    when_bought = db.Column(db.DateTime, default=None, nullable=True)
     shopping_list_id = db.Column(db.Integer, db.ForeignKey('shopping_list.id'), nullable=False)
     shopping_list = db.relationship('ShoppingList', back_populates='products')
 
-
+    def set_date(self, ifbought):
+        if ifbought:
+            self.when_bought = datetime.utcnow()
+        else:
+            self.when_bought = None
 
     def to_dict(self):
         return {
@@ -55,7 +60,8 @@ class Product(db.Model):
             "price": self.price,
             "category": self.category.value,
             "quantity": self.quantity,
-            "bought": self.bought
+            "bought": self.bought,
+            "when_bought": self.when_bought
         }
 
 with app.app_context():
@@ -100,7 +106,6 @@ def handle_products():
         price = data.get("price")
         category = CategoryEnum(data.get("category"))
         quantity = data.get("quantity")
-        bought = False
         shopping_list_id = data.get("listId")
 
         if not name or not price or not category:
@@ -111,7 +116,6 @@ def handle_products():
             price=float(price),
             category=category,
             quantity=int(quantity),
-            bought=bought,
             shopping_list_id=shopping_list_id   
         )
         db.session.add(new_product)
@@ -185,10 +189,12 @@ def update_product(product_id):
     product.category = CategoryEnum(data.get("category"))
     product.quantity = data.get("quantity", product.quantity)
     product.bought = data.get("bought", product.bought)
+    product.set_date(product.bought)
 
     db.session.commit()
 
-    return jsonify({"message": "Product successfully updated"}), 200
+    return jsonify(product.to_dict()), 200
+
 
 if __name__ == "__main__":
     app.run()

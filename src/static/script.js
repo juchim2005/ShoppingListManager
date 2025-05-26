@@ -125,7 +125,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendProduct(product) {
         const li = document.createElement("li");
-        li.textContent = `${product.name} - ${product.price} zł [${product.category}] - ${product.quantity} sztuki - ${(product.price * product.quantity).toFixed(2)} zł - ${product.bought ? "Kupiony" : "Nie kupiony"}`;
+        let formatted = "";
+
+        if (product.bought) {
+            const date = new Date(product.when_bought);
+            const formatted_date = date.toLocaleString();
+            formatted = `(${formatted_date})`;
+        }
+        li.textContent = `${product.name} - ${product.price} zł [${product.category}] - ${product.quantity} sztuki - ${(product.price * product.quantity).toFixed(2)} zł - ${product.bought ? "Kupiony" : "Nie kupiony"} ${formatted}`;
 
         //po dodaniu produktu, dodanie przycisku do usuwania 
         const deleteButton = document.createElement("button");
@@ -196,16 +203,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 const updatedProduct = {
                     id: product.id,
                     name: nameInput.value,
-                    price: priceInput.value,
+                    price: parseFloat(priceInput.value),
                     category: categoryInput.value,
-                    quantity: quantityInput.value,
+                    quantity: parseInt(quantityInput.value),
                     bought: boughtInput.checked,
                     listId: currentListId
                 };
 
-                updateProduct(updatedProduct).then(() => {
-                    li.remove();
-                    appendProduct(updatedProduct);
+                updateProduct(updatedProduct).then((newProduct) => {
+                    if (newProduct) {
+                        li.remove();
+                        appendProduct(newProduct); 
+                    }
                 });
             });
 
@@ -220,15 +229,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const updateProduct = async (product) => {
+    try {
         const res = await fetch(`/api/products/${product.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(product),
-
         });
 
+        if (!res.ok) {
+            throw new Error("Błąd podczas aktualizacji produktu");
+        }
+
+        const updated = await res.json(); 
+        return updated;
+    } catch (err) {
+        console.error("Błąd:", err);
+        return null;
     }
+};
+
+
 });
 
