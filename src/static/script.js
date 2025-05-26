@@ -1,3 +1,4 @@
+let currentListId = null;
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("productForm");
     const nameInput = document.getElementById("nameInput");
@@ -8,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const listForm = document.getElementById("listForm");
     const listNameInput = document.getElementById("listNameInput");
     const listSelect = document.getElementById("listSelect");
-    let currentListId = null;
+    
 
     listForm.addEventListener("submit", (e) =>{
         e.preventDefault();
@@ -253,3 +254,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+function analysis() {
+    fetch(`api/analysis/${currentListId}`).then(res => {
+        if (!res.ok) {
+                return res.json().then(err => Promise.reject(err));
+            }
+            return res.json();
+        }).then(data => {
+        const container = document.getElementById("analysisContainer");
+        container.innerHTML = `<h3>Średnia cena produktów wg kategorii</h3>
+        <img src="data:image/png;base64,${data.chart}" alt="Wykres kategorii" />
+        <button id="backBtn">Powrót</button>
+        `;
+        document.getElementById("backBtn").addEventListener("click", returnToMainView);
+    }).catch(error => {
+            const container = document.getElementById("analysisContainer");
+            container.innerHTML = `<p style="color:red;">Błąd: ${error.error || "Nieznany błąd"}</p>`;
+        });
+}
+function returnToMainView() {
+    document.getElementById("analysisContainer").innerHTML = "";
+}
+
+analysisBtn.addEventListener("click", () => {
+    analysis(currentListId);
+});

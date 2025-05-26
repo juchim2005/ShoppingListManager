@@ -1,12 +1,19 @@
 from enum import Enum
 from sqlalchemy import Enum as SqlEnum
+from sqlalchemy import func
+
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask.typing import ResponseReturnValue
 import os
-import matplotlib as plt
+import matplotlib
+matplotlib.use('Agg')  
+
+import matplotlib.pyplot as plt
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Union
+import io
+import base64
 
 app = Flask(__name__)
 
@@ -201,6 +208,31 @@ def update_product(product_id: int) -> ResponseReturnValue:
 
     db.session.commit()
     return jsonify(product.to_dict()), 200
+
+@app.route("/api/analysis/<int:currentListId>", methods=["GET"])
+def analysis(currentListId: int):
+    if not currentListId:
+        return jsonify({"error": "Brak ID listy zakupów"}), 400
+    data = db.session.query(Product.category, func.sum(Product.price * Product.quantity)).filter(Product.shopping_list_id == currentListId).group_by(Product.category).all()
+
+    labels = [str(row[0].value) for row in data]
+    values = [float(row[1])  for row in data]
+
+    fig, ax = plt.subplots()
+    ax.bar(labels, values)
+    ax.set_title("Całkowita cena produktów w danej kategorii")
+    ax.set_xlabel("Kategoria")
+    ax.set_ylabel("Koszt")
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+
+    buf = io.BytesIO()
+    plt.tight_layout()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    plt.close(fig)
+
+    return jsonify({"chart": img_base64})
 
 
 if __name__ == "__main__":
