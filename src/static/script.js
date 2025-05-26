@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (maxCost.value) query.append("max_cost", maxCost.value);
         if (filterCategory.value) query.append("category", filterCategory.value);
         if (filterBought.value) query.append("bought", filterBought.value);
-        query.append("list_id", currentListId);
+        if (currentListId) query.append("listId", currentListId);
 
         fetch(`/api/products?${query.toString()}`)
             .then(res => res.json())
@@ -109,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const query = new URLSearchParams();
         if (sortBy.value) query.append("sort_by", sortBy.value);
         if (sortOrder.value) query.append("order", sortOrder.value);
+        if (currentListId) query.append("listId", currentListId);
 
         fetch(`/api/products?${query.toString()}`)
             .then(res => res.json())

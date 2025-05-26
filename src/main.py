@@ -157,7 +157,7 @@ def handle_products():
             query = query.order_by(sort_column.desc())
         else:
             query = query.order_by(sort_column.asc())
-    
+    print(request.args)
     list_id = request.args.get("listId", type=int)
     products = query.filter(Product.shopping_list_id == list_id).all()
     return jsonify([product.to_dict() for product in products]), 200
