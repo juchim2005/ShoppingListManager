@@ -2,8 +2,10 @@ from enum import Enum
 from sqlalchemy import Enum as SqlEnum
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask.typing import ResponseReturnValue
 import os
 from datetime import datetime
+from typing import List, Optional, Dict, Any, Union
 
 app = Flask(__name__)
 
@@ -14,6 +16,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 class CategoryEnum(Enum):
     WARZYWA = 'Warzywa'
     OWOCE = 'Owoce'
@@ -22,19 +25,21 @@ class CategoryEnum(Enum):
     NAPOJE = "Napoje"
     INNE = 'Inne'
 
+
 class ShoppingList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     products = db.relationship('Product', back_populates='shopping_list', lazy=True)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "name": self.name,
             "created_at": self.created_at,
             "products": [product.to_dict() for product in self.products]
         }
+
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,13 +52,13 @@ class Product(db.Model):
     shopping_list_id = db.Column(db.Integer, db.ForeignKey('shopping_list.id'), nullable=False)
     shopping_list = db.relationship('ShoppingList', back_populates='products')
 
-    def set_date(self, ifbought):
+    def set_date(self, ifbought: bool) -> None:
         if ifbought:
             self.when_bought = datetime.utcnow()
         else:
             self.when_bought = None
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "name": self.name,
@@ -64,45 +69,50 @@ class Product(db.Model):
             "when_bought": self.when_bought
         }
 
+
 with app.app_context():
     db.create_all()
 
+
 @app.route("/")
-def home():
+def home() -> str:
     return render_template("index.html")
 
+
 @app.route("/api/lists", methods=["GET", "POST"])
-def handle_lists():
+def handle_lists() -> ResponseReturnValue:
     if request.method == "POST":
-        data = request.get_json()
-        name = data.get("name")
+        data: Dict[str, Any] = request.get_json()
+        name: Optional[str] = data.get("name")
         if not name:
-            return jsonify({"error": "Missing list data"}),400
-        
+            return jsonify({"error": "Missing list data"}), 400
+
         new_list = ShoppingList(name=name)
         db.session.add(new_list)
         db.session.commit()
         return jsonify(new_list.to_dict()), 201
 
-    lists = ShoppingList.query.all()
+    lists: List[ShoppingList] = ShoppingList.query.all()
     return jsonify([list.to_dict() for list in lists]), 200
 
 
 @app.route("/api/lists/<int:id>", methods=["GET"])
-def find_list(id):
-    list = ShoppingList.query.get_or_404(id)
-    return jsonify(list.to_dict()), 200
+def find_list(id: int) -> ResponseReturnValue:
+    list_ = ShoppingList.query.get_or_404(id)
+    return jsonify(list_.to_dict()), 200
+
 
 @app.route("/api/lists/czemutoniedziala", methods=["GET"])
-def get_shopping_lists_names():
-    lists = ShoppingList.query.all()
-    return jsonify([{"id": list.id, "name": list.name, "created_at": list.created_at} for list in lists]), 200
+def get_shopping_lists_names() -> ResponseReturnValue:
+    lists: List[ShoppingList] = ShoppingList.query.all()
+    return jsonify([{"id": list_.id, "name": list_.name, "created_at": list_.created_at} for list_ in lists]), 200
 
-@app.route("/api/products", methods=["GET","POST"])
-def handle_products():
+
+@app.route("/api/products", methods=["GET", "POST"])
+def handle_products() -> ResponseReturnValue:
     if request.method == "POST":
-        data = request.get_json()
-        name = data.get("name")
+        data: Dict[str, Any] = request.get_json()
+        name: Optional[str] = data.get("name")
         price = data.get("price")
         category = CategoryEnum(data.get("category"))
         quantity = data.get("quantity")
@@ -116,7 +126,7 @@ def handle_products():
             price=float(price),
             category=category,
             quantity=int(quantity),
-            shopping_list_id=shopping_list_id   
+            shopping_list_id=shopping_list_id
         )
         db.session.add(new_product)
         db.session.commit()
@@ -124,12 +134,12 @@ def handle_products():
 
     query = Product.query
 
-    category = request.args.get("category")
-    if category:
+    category_param = request.args.get("category")
+    if category_param:
         try:
-            query = query.filter(Product.category == CategoryEnum(category))
+            query = query.filter(Product.category == CategoryEnum(category_param))
         except ValueError:
-            return jsonify({"error": f"Invalid category: {category}"}), 400
+            return jsonify({"error": f"Invalid category: {category_param}"}), 400
 
     bought = request.args.get("bought")
     if bought is not None:
@@ -138,8 +148,8 @@ def handle_products():
         elif bought.lower() == "false":
             query = query.filter(Product.bought.is_(False))
 
-    min_cost = request.args.get("min_cost", type=float)
-    max_cost = request.args.get("max_cost", type=float)
+    min_cost: Optional[float] = request.args.get("min_cost", type=float)
+    max_cost: Optional[float] = request.args.get("max_cost", type=float)
     cost_expr = Product.price * Product.quantity
 
     if min_cost is not None:
@@ -150,28 +160,25 @@ def handle_products():
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "asc")
 
+    sort_column = None
     if sort_by == "name":
         sort_column = Product.name
     elif sort_by == "total_cost":
         sort_column = cost_expr
     elif sort_by == "bought":
         sort_column = Product.bought
-    else:
-        sort_column = None
 
     if sort_column is not None:
-        if order == "desc":
-            query = query.order_by(sort_column.desc())
-        else:
-            query = query.order_by(sort_column.asc())
-    print(request.args)
+        query = query.order_by(sort_column.desc() if order == "desc" else sort_column.asc())
+
     list_id = request.args.get("listId", type=int)
-    products = query.filter(Product.shopping_list_id == list_id).all()
+    products: List[Product] = query.filter(Product.shopping_list_id == list_id).all()
     return jsonify([product.to_dict() for product in products]), 200
 
+
 @app.route("/api/products/<int:product_id>", methods=["DELETE"])
-def delete_product(product_id):
-    product = Product.query.get(product_id)
+def delete_product(product_id: int) -> ResponseReturnValue:
+    product: Optional[Product] = Product.query.get(product_id)
     if product is None:
         return jsonify({"error": "Product not found"}), 404
 
@@ -179,10 +186,11 @@ def delete_product(product_id):
     db.session.commit()
     return 'Product successfully deleted', 204
 
+
 @app.route("/api/products/<int:product_id>", methods=["PUT"])
-def update_product(product_id):
-    data = request.get_json()
-    product = Product.query.get_or_404(product_id)
+def update_product(product_id: int) -> ResponseReturnValue:
+    data: Dict[str, Any] = request.get_json()
+    product: Product = Product.query.get_or_404(product_id)
 
     product.name = data.get("name", product.name)
     product.price = data.get("price", product.price)
@@ -192,7 +200,6 @@ def update_product(product_id):
     product.set_date(product.bought)
 
     db.session.commit()
-
     return jsonify(product.to_dict()), 200
 
 
