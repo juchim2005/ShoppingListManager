@@ -3,6 +3,7 @@ from sqlalchemy import Enum as SqlEnum
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -24,12 +25,14 @@ class CategoryEnum(Enum):
 class ShoppingList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     products = db.relationship('Product', back_populates='shopping_list', lazy=True)
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
+            "created_at": self.created_at,
             "products": [product.to_dict() for product in self.products]
         }
 
@@ -87,7 +90,7 @@ def find_list(id):
 @app.route("/api/lists/czemutoniedziala", methods=["GET"])
 def get_shopping_lists_names():
     lists = ShoppingList.query.all()
-    return jsonify([{"id": list.id, "name": list.name} for list in lists]), 200
+    return jsonify([{"id": list.id, "name": list.name, "created_at": list.created_at} for list in lists]), 200
 
 @app.route("/api/products", methods=["GET","POST"])
 def handle_products():

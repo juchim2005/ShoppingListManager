@@ -30,7 +30,9 @@
                 data.forEach(list => {
                     const option = document.createElement("option");
                     option.value = list.id;
-                    option.textContent = list.name;
+                    const date = new Date(list.created_at);
+                    const formatted = date.toLocaleString(); 
+                    option.textContent = `${list.name} (${formatted})`;
                     select.appendChild(option);
                 });
             })

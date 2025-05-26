@@ -27,7 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             const option = document.createElement("option");
             option.value = data.id;
-            option.textContent = data.name;
+            const date = new Date(data.created_at);
+            const formatted = date.toLocaleString(); 
+            option.textContent = `${data.name} (${formatted})`;
             listSelect.appendChild(option);
             currentListId = data.id;
             data.products.forEach(appendProduct);
