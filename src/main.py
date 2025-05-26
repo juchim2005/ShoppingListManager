@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask.typing import ResponseReturnValue
 import os
+import matplotlib as plt
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Union
 
@@ -15,7 +16,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
 
 class CategoryEnum(Enum):
     WARZYWA = 'Warzywa'
